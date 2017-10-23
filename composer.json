@@ -1,6 +1,6 @@
 {
     "name": "qinqw/yii-rest",
-    "description": "A Restful interface framework based on Yii2",
+    "description": "A lightweight and powerful Restful interface framework based on Yii2",
     "homepage": "https://github.com/qinqw/yii-rest",
     "license": "MIT",
     "keywords": ["Restful API yii2 qinqw"],
