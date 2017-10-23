@@ -1,0 +1,25 @@
+{
+    "name": "qinqw/yii-rest",
+    "description": "A Restful interface framework based on Yii2",
+    "homepage": "https://github.com/qinqw/yii-rest",
+    "license": "MIT",
+    "keywords": ["Restful API yii2 qinqw"],
+    "type": "project",
+    "authors": [
+        {
+            "name": "Kevin",
+            "email": "qinqiwei@hotmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.5.0",
+        "yiisoft/yii2": "~2.0.6",
+        "yiisoft/yii2-bootstrap": "~2.0.0",
+        "yiisoft/yii2-swiftmailer": "~2.0.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Qinqw\\Yii\\Rest\\": "src/"
+        }
+    }
+}
