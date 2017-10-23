@@ -15,7 +15,7 @@ use yii\base\InvalidConfigException;
 use yii\base\Exception;
 use yii\web\HttpException;
 use yii\web\Request;
-use app\infrastructure\security\Authorization;
+use Qinqw\Yii\Rest\security\Authorization;
 
 /**
  * Token Validator
