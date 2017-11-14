@@ -12,7 +12,7 @@ namespace Qinqw\Yii\Rest;
 
 use Yii;
 use yii\rest\ActiveController;
-use Qinqw\Yii\Rest\validators\RequestValidator;
+use Qinqw\Yii\Rest\validators\SignValidator;
 use Qinqw\Yii\Rest\validators\TokenValidator;
 
 /**
@@ -91,7 +91,10 @@ class BaseApiController extends ActiveController
             header("HTTP/1.1 ".$code." ".$message); 
             exit();
         }
-
+        header("Access-Control-Allow-Origin:*");
+        header("Access-Control-Allow-Methods: POST, PUT, GET, DELETE, OPTIONS");
+        header("Access-Control-Allow-Headers: token, app-key, content-type, etcp-base");
+        header("Access-Control-Max-Age: 86400");
         /** 
          * 此部分代码用户修复 Rest控制器报 Response content must not be an array. 的错误
          *
@@ -105,8 +108,8 @@ class BaseApiController extends ActiveController
         $returnValue = false;
 
         if (parent::beforeAction($action)) {
-            $requestValidator = new RequestValidator();
-            $returnValue = $requestValidator->load()->validate();
+            $signValidator = new SignValidator();
+            $returnValue = $signValidator->load()->validate();
 
             if (!$this->is_auth) {
                 $tokenValidator = new TokenValidator();

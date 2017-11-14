@@ -27,13 +27,13 @@ use yii\web\Request;
  * @license  Apache 2.0
  * @link     https://github.com/qinqw/yii-rest
  */
-class RequestValidator
+class SignValidator
 {
     public static $globalParams = null;
     public $attributes = [
-        'app_key',
-        'time_stamp',
-        'os_type'
+        'app-key',
+        'os-type',
+        'timestamp'
     ];
 
     /**
