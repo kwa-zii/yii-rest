@@ -31,8 +31,7 @@ class TokenValidator
 {
     public static $globalParams = null;
     public $attributes = [
-            'app-key',
-            'token',
+            'token'
     ];
 
     /**
@@ -86,7 +85,7 @@ class TokenValidator
                 self::$globalParams[$attribute] = $cookieParams[$attribute];
             }
         }
-                
+
         if ($is_missed_cookie == true) {
             $headParams = Yii::$app->request->getHeaders()->toArray();
             foreach ($this->attributes as $attribute) {
