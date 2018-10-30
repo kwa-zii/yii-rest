@@ -31,6 +31,7 @@ class BaseApiController extends ActiveController
     public $is_auth = false;
     public $code = 0;
     public $message = 'Succeed!';
+    public $debug_stack = [];
     public $serializer = [ 
             'class' => 'yii\rest\Serializer',
             'collectionEnvelope' => 'data' 
@@ -78,6 +79,7 @@ class BaseApiController extends ActiveController
      */
     public function beforeAction($action)
     {
+        defined('YII_DEBUG') or define('YII_DEBUG', true);
         $req = Yii::$app->request;
         if ($req->isOptions) {
             //允许跨域请求处理
@@ -131,11 +133,15 @@ class BaseApiController extends ActiveController
     {
         $result = parent::afterAction($action, $result);
         // your custom code here
-        $result = [ 
-                'code' => $this->code,
-                'message' => $this->message,
-                'data' => $result 
+        $res = [ 
+            'code' => $this->code,
+            'message' => $this->message,
+            'data' => $result
         ];
-        return $result;
+        if (YII_DEBUG) {
+            $res['debug_stack'] = $this->debug_stack;
+        }
+       
+        return $res;
     }
 }
