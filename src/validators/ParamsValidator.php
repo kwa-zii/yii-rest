@@ -1259,7 +1259,7 @@ class ParamsValidator
         if (strpos($key, '.')) {
             // 支持二维数组验证
             list($name1, $name2) = explode('.', $key);
-            $value               = isset($data[$name1][$name2]) ? $data[$name1][$name2] : null;
+            $value = isset($data[$name1][$name2]) ? $data[$name1][$name2] : null;
         } else {
             $value = isset($data[$key]) ? $data[$key] : null;
         }
@@ -1350,7 +1350,9 @@ class ParamsValidator
         if (method_exists($class, $method)) {
             return call_user_func_array([$class, $method], $params);
         } else {
-            throw new \BadMethodCallException('method not exists:' . __CLASS__ . '->' . $method);
+            throw new \BadMethodCallException(
+                'method not exists:'.__CLASS__.'->'.$method
+            );
         }
     }
 }
