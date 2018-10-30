@@ -22,10 +22,8 @@ namespace Qinqw\Yii\Rest\security;
  */
 class Authorization
 {
-    const LOGIN_EXPIRE = 3600;
-
     const SALT = "KUHJINJIK99089";
-
+    private $_token_ttl = 3600;
     private static $_instance;
 
     /**
@@ -44,19 +42,21 @@ class Authorization
 
     /**
      * CreateLoginToken
-     *
-     * @param mixed $appKey    AppKey
-     * @param mixed $userId    UserId
-     * @param mixed $timeStamp TimeStamp
-     *
+     * 
+     * @param mixed $userId 
+     * @param mixed $timeStamp 
+     * @param mixed $token_ttl 3600 
+     * @param mixed $data      缓存数据
+     * 
      * @return mixed 
      */
-    public function createLoginToken($appKey, $userId, $timeStamp)
+    public function createLoginToken($userId, $timeStamp, $token_ttl=3600, $data=[])
     {
         $token = md5($userId . self::SALT . $timeStamp);
-        $value=json_encode(array("uid"=>$userId,"app_key"=>$appKey));
+        $value=json_encode(array("uid"=>$userId,"data"=>$data));
         $redis = \Yii::$app->redis;
-        $result = $redis->setex($token, self::LOGIN_EXPIRE, $value);
+        $this->_ttl = $token_ttl;
+        $result = $redis->setex($token, $this->_ttl, $value);
         return $token;
     }
 
@@ -77,19 +77,39 @@ class Authorization
     /**
      * Validate Token
      * 
-     * @param mixed $token  Token
-     * @param mixed $appKey AppKey
+     * @param mixed $token     Token
+     * @param mixed $token_ttl token_ttl
      *
      * @return mixed 
      */
-    public function validateToken($token, $appKey)
+    public function validateToken($token, $token_ttl=3600)
     {
         $redis = \Yii::$app->redis;
         $value = $redis->get($token);
         if (!empty($value)) {
-            $result = $redis->setex($token, self::LOGIN_EXPIRE, $value);
+            $this->_ttl = $token_ttl;
+            $result = $redis->setex($token, $this->_ttl, $value);
             return true;
         }
         return false;
+    }
+
+    /**
+     * GetData 获取登录缓存信息
+     * 
+     * @param mixed $token 
+     * 
+     * @return mixed 
+     */
+    public function getData($token)
+    {
+        $result = [];
+        $redis = \Yii::$app->redis;
+        $value = $redis->get($token);
+        if (!empty($value)) {
+            $this->_ttl = $token_ttl;
+            $result = json_decode($value, true);
+        }
+        return $result;
     }
 }
