@@ -29,6 +29,7 @@ use Qinqw\Yii\Rest\security\Authorization;
  */
 class TokenValidator
 {
+    private $_is_valid_token = false;
     public static $globalParams = null;
     public $attributes = [
             'token'
@@ -44,11 +45,8 @@ class TokenValidator
         //return true;
         // 此处实现请求的合法性校验，true代表请求合法
         // 校验参数
-        // 只有在Yii参数定义中显式的生命 enable_sign 为 false，才不启用签名验证。
-        if (isset(Yii::$app->params['enable_token'])) {
-            if (boolval(Yii::$app->params['enable_token']) == false) {
-                return true;
-            }
+        if ($this->_is_valid_token == false) {
+            return true;
         }
 
         $auth = new Authorization();
@@ -72,31 +70,37 @@ class TokenValidator
      */
     public function load()
     {
-        if (! Yii::$app->params['enable_token']) {
-            return $this;
-        }
-        /**
-        * 优先检查存储在cookie中的参数；
-        * 如果cookie中的信息符合要求，则忽略header中的参数；如果cookie中的参数不符合要求，进一步检查header中的参数
-        */
-        $is_missed_cookie = false;
-        $cookieParams=$_COOKIE;
-        foreach ($this->attributes as $attribute) {
-            if (!array_key_exists($attribute, $cookieParams)) {
-                $is_missed_cookie = true;
-                break;
-            } else {
-                self::$globalParams[$attribute] = $cookieParams[$attribute];
+        // 只有在Yii参数定义中显式的声明 enable_sign 为 true，才不启用签名验证。
+        if (isset(Yii::$app->params['enable_token'])) {
+            if (Yii::$app->params['enable_token'] == true) {
+                $this->_is_valid_token = true;
             }
         }
 
-        if ($is_missed_cookie == true) {
-            $headParams = Yii::$app->request->getHeaders()->toArray();
+        if ($this->_is_valid_token == true) {
+            /**
+            * 优先检查存储在cookie中的参数；
+            * 如果cookie中的信息符合要求，则忽略header中的参数；如果cookie中的参数不符合要求，进一步检查header中的参数
+            */
+            $is_missed_cookie = false;
+            $cookieParams=$_COOKIE;
             foreach ($this->attributes as $attribute) {
-                if (!isset($headParams[$attribute]) || (!is_array($headParams[$attribute])) || empty($headParams[$attribute])) {
-                    throw new HttpException(400, "Missing ".$attribute." in the header", 400);
+                if (!array_key_exists($attribute, $cookieParams)) {
+                    $is_missed_cookie = true;
+                    break;
                 } else {
-                    self::$globalParams[$attribute] = array_shift($headParams[$attribute]);
+                    self::$globalParams[$attribute] = $cookieParams[$attribute];
+                }
+            }
+
+            if ($is_missed_cookie == true) {
+                $headParams = Yii::$app->request->getHeaders()->toArray();
+                foreach ($this->attributes as $attribute) {
+                    if (!isset($headParams[$attribute]) || (!is_array($headParams[$attribute])) || empty($headParams[$attribute])) {
+                        throw new HttpException(400, "Missing ".$attribute." in the header", 400);
+                    } else {
+                        self::$globalParams[$attribute] = array_shift($headParams[$attribute]);
+                    }
                 }
             }
         }

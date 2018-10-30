@@ -29,6 +29,7 @@ use yii\web\Request;
  */
 class SignValidator
 {
+    private $_is_valid_sign = false;
     public static $globalParams = null;
     public $attributes = [
         'app-key',
@@ -45,33 +46,36 @@ class SignValidator
     {
         // 此处实现请求的合法性校验，true代表请求合法
         // 校验参数
-        // 只有在Yii参数定义中显式的生命 enable_sign 为 false，才不启用签名验证。
-        if (isset(Yii::$app->params['enable_sign'])) {
-            if (boolval(Yii::$app->params['enable_sign']) == false) {
-                return true;
-            }
+        if ($this->_is_valid_sign == false) {
+            return true;
         }
 
         /**
          * 安全参数只能通过header传入 注释调从post消息体内获取安全参数的代码
          */
-        $requestPost = Yii::$app->request->post();
-        foreach ($requestPost as $key => $postValue) {
+        $request = Yii::$app->request;
+        if ($request->isGet) {
+            $requestParams = $request->get();
+        } else {
+            $requestParams = $request->bodyParams;
+        }
+        
+        foreach ($requestParams as $key => $postValue) {
             if (is_array($postValue)) {
                 foreach ($postValue as $subKey => $subValue) {
                     if (is_array($subValue)) {
                         foreach ($subValue as $indexKey => $detailValue) {
-                            $requestPost [$key . '[' . $subKey . ']' . '[' . $indexKey . ']'] = $detailValue;
+                            $requestParams [$key . '[' . $subKey . ']' . '[' . $indexKey . ']'] = $detailValue;
                         }
                     } else {
-                        $requestPost [$key . '[' . $subKey . ']'] = $subValue;
+                        $requestParams [$key . '[' . $subKey . ']'] = $subValue;
                     }
                 }
-                unset($requestPost[$key]);
+                unset($requestParams[$key]);
             }
         }
 
-        $validateParams = array_merge($requestPost, self::$globalParams);
+        $validateParams = array_merge($requestParams, self::$globalParams);
         foreach ($validateParams as $key => $param) {
             if ($param == null || $param == '') {
                 unset($validateParams[$key]);
@@ -110,22 +114,28 @@ class SignValidator
      */
     public function load()
     {
-        $headParams = Yii::$app->request->getHeaders()->toArray();
-        if (! isset($headParams['etcp-base'])||(!is_array($headParams['etcp-base']))||empty($headParams['etcp-base'])) {
-            if (! Yii::$app->params ['enable_sign']) {
-                return $this;
-            } else {
-                //throw new HttpException (400,"Request is not legal!, 'etcp-base' can not be found ",400);
-                throw new HttpException(400, "Request is not legal!, Missing 'etcp-base' in the header", 400);
+        // 只有在Yii参数定义中显式的声明 enable_sign 为 true，启用签名验证。
+        if (isset(Yii::$app->params['enable_sign'])) {
+            if (Yii::$app->params['enable_sign'] == true) {
+                $this->_is_valid_sign = true;
             }
         }
-        $appHeadParams = json_decode(array_shift($headParams['etcp-base']), true);
-        //var_dump($appHeadParams);die;
-        foreach ($this->attributes as $attribute) {
-            if (isset($appHeadParams[$attribute])) {
-                self::$globalParams [$attribute] = $appHeadParams [$attribute];
-            } else {
-                self::$globalParams [$attribute] = '';
+
+        if ($this->_is_valid_sign == true) {
+            $headParams = Yii::$app->request->getHeaders()->toArray();
+            if (!isset($headParams['sign-base'])) {
+                //throw new HttpException (400,"Request is not legal!, 'etcp-base' can not be found ",400);
+                throw new HttpException(400, "Request is not legal!, Missing 'sign-base' in the header", 400);
+            }
+
+            $appHeadParams = json_decode(array_shift($headParams['sign-base']), true);
+            //var_dump($appHeadParams);die;
+            foreach ($this->attributes as $attribute) {
+                if (isset($appHeadParams[$attribute])) {
+                    self::$globalParams [$attribute] = $appHeadParams [$attribute];
+                } else {
+                    self::$globalParams [$attribute] = '';
+                }
             }
         }
         return $this;
