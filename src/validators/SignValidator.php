@@ -43,15 +43,17 @@ class SignValidator
      */
     public function validate()
     {
-        //return true;
         // 此处实现请求的合法性校验，true代表请求合法
         // 校验参数
-        if (!Yii::$app->params ['enable_sign']) {
-            return true;
+        // 只有在Yii参数定义中显式的生命 enable_sign 为 false，才不启用签名验证。
+        if (isset(Yii::$app->params['enable_sign'])) {
+            if (boolval(Yii::$app->params['enable_sign']) == false) {
+                return true;
+            }
         }
 
         /**
-         * 安全参数智能通过header传入 注释调从post消息体内获取安全参数的代码
+         * 安全参数只能通过header传入 注释调从post消息体内获取安全参数的代码
          */
         $requestPost = Yii::$app->request->post();
         foreach ($requestPost as $key => $postValue) {
