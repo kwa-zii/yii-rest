@@ -44,9 +44,13 @@ class TokenValidator
         //return true;
         // 此处实现请求的合法性校验，true代表请求合法
         // 校验参数
-        if (! Yii::$app->params ['enable_token']) {
-            return true;
+        // 只有在Yii参数定义中显式的生命 enable_sign 为 false，才不启用签名验证。
+        if (isset(Yii::$app->params['enable_token'])) {
+            if (boolval(Yii::$app->params['enable_token']) == false) {
+                return true;
+            }
         }
+
         $auth = new Authorization();
         $token = self::$globalParams['token'];
         $app_key = "1985071000";
