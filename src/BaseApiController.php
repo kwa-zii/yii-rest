@@ -62,10 +62,11 @@ class BaseApiController extends ActiveController
      * 
      * @param mixed $id 
      * @param mixed $module 
+     * @param mixed $config 
      * 
      * @return mixed 
      */
-    public function __construct($id, $module)
+    public function __construct($id, $module, $config = [])
     {
         parent::__construct($id, $module);
         if (isset(Yii::$app->params['access_control'])) {
