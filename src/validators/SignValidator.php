@@ -1,7 +1,8 @@
 <?php
 /**
  * A lightweight and powerful Restful interface framework based on Yii2
- *
+ * PHP version 5.6 or newer
+ * 
  * @category Restful_Api_Validator
  * @package  Qinqw\Yii\Rest\validators
  * @author   Kevin <qinqiwei@hotmail.com>

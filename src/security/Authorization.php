@@ -1,7 +1,8 @@
 <?php
 /**
  * A lightweight and powerful Restful interface framework based on Yii2
- *
+ * PHP version 5.6 or newer
+ * 
  * @category Restful_Api_Security
  * @package  Qinqw\Yii\Rest\security
  * @author   Kevin <qinqiwei@hotmail.com>
