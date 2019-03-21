@@ -40,4 +40,21 @@ class DemoController extends BaseApiController
     {
         echo "ccc";die;
     }
+
+    /**
+     * IndexAction
+     * 
+     * @return mixed 
+     */
+    public function actionTest()
+    {
+        $req = Yii::$app->request;
+
+        $this->code = 0;
+        $this->message = 'OK';
+
+        $data = $req->post();
+
+        return $data;
+    }
 }
