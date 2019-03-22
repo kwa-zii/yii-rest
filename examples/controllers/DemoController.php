@@ -14,6 +14,7 @@ namespace controllers;
 use Yii;
 use yii\rest\ActiveController;
 use Qinqw\Yii\Rest\BaseApiController;
+use Qinqw\Yii\Rest\validators\ParamsValidator;
 
 /**
  * Demo Api controller
@@ -55,6 +56,57 @@ class DemoController extends BaseApiController
 
         $data = $req->post();
 
+        return $data;
+    }
+
+    /**
+     * ActionDemo
+     * 
+     * @return mixed 
+     */
+    public function actionDemo()
+    {
+        $method_allowed = false;
+        $req = Yii::$app->request;
+        if ($req->isGet) {
+            $params = $req->get();
+            $method_allowed = true;
+        } elseif ($req->isPost) {
+            //$params = $req->post();
+            $params = $req->bodyParams;
+            $method_allowed = true;
+        } else {
+            $this->code = 405;
+            $this->message = "Method Not Allowed";
+            $data = "Method GET/POST is required";
+        }
+
+        if ($method_allowed == true) {
+            $this->code = 0;
+            $this->message = "OK";
+
+            $rule = [
+                'username'  =>'require',
+                'password'  =>'require'
+            ];
+            $msg = [
+                //'username.require'  =>'用户名[username]不能为空'
+            ];
+            $validate = new ParamsValidator($rule, $msg);
+            $valid_result = $validate->check($params);
+
+            if (!$valid_result) {
+                $data  = ["notification"=>$validate->getError()];
+                $this->code    = "400";
+                $this->message = "Bad Request";
+            } else {
+
+                $this->code = 200;
+                $this->message = 'OK';
+                $this->debug_stack = [];
+                $data = $params;
+            }
+        }
         return $data;
     }
 }

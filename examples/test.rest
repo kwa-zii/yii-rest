@@ -10,6 +10,15 @@ Content-Type: application/json
     "valid":true
 }
 
+POST http://0.0.0.0:890/demo/demo HTTP/1.1
+token: 7678267382afe234uawe09qad93
+Content-Type: application/json
+
+{
+    "username":"test",
+    "password":"test"
+}
+
 GET http://0.0.0.0:890/index.php?r=demo/error HTTP/1.1
 token: 7678267382afe234uawe09qad93
 
