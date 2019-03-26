@@ -28,6 +28,22 @@ class SiteController extends ActiveController
     public $modelClass = "";
 
     /**
+     * Actions 
+     * 
+     * @inheritdoc
+     * 
+     * @return mixed
+     */
+    public function actions()
+    {
+        return [
+            'error' => [
+                'class' => 'yii\web\ErrorAction',
+            ],
+        ];
+    }
+
+    /**
      * BeforeAction
      * 
      * @param mixed $action 

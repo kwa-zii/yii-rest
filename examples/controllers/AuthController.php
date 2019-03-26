@@ -15,6 +15,7 @@ use Yii;
 use yii\rest\ActiveController;
 use Qinqw\Yii\Rest\BaseApiController;
 use Qinqw\Yii\Rest\validators\ParamsValidator;
+use Qinqw\Yii\Rest\security\Authorization;
 
 /**
  * Demo Api controller
@@ -27,70 +28,55 @@ use Qinqw\Yii\Rest\validators\ParamsValidator;
  * @license  https://www.etcp.cn/license V2
  * @link     https://www.etcp.cn
  */
-class DemoController extends BaseApiController
+class AuthController extends BaseApiController
 {
-    // public $modelClass = "";
-    public $is_auth = false;
+    public $is_auth = true;
 
     /**
      * IndexAction
      * 
      * @return mixed 
      */
-    public function actionError()
-    {
-        echo "ccc";die;
-    }
-
-    /**
-     * IndexAction
-     * 
-     * @return mixed 
-     */
-    public function actionTest()
-    {
-        $req = Yii::$app->request;
-
-        $this->code = 0;
-        $this->message = 'OK';
-
-        $data = $req->post();
-
-        return $data;
-    }
-
-    /**
-     * ActionDemo
-     * 
-     * @return mixed 
-     */
-    public function actionDemo()
+    public function actionToken()
     {
         $method_allowed = false;
         $req = Yii::$app->request;
+
         if ($req->isGet) {
             $params = $req->get();
-            $method_allowed = true;
+            $rule = [
+                'token'  =>'require',
+            ];
+            $msg = [
+                //'username.require'  =>'用户名[username]不能为空'
+            ];
+
+            $validate = new ParamsValidator($rule, $msg);
+            $valid_result = $validate->check($params);
+            if (!$valid_result) {
+                $data  = ["notification"=>$validate->getError()];
+                $this->code    = "400";
+                $this->message = "Bad Request";
+            } else {
+                $token=$params['token'];
+                $auth =  new Authorization();
+                $valid = $auth->validateToken($token);
+
+                $this->code = 200;
+                $this->message = 'OK';
+                $this->debug_stack = [];
+                $data = ['valid'=>$valid];
+            }
         } elseif ($req->isPost) {
             //$params = $req->post();
             $params = $req->bodyParams;
-            $method_allowed = true;
-        } else {
-            $this->code = 405;
-            $this->message = "Method Not Allowed";
-            $data = "Method GET/POST is required";
-        }
-
-        if ($method_allowed == true) {
-            $this->code = 0;
-            $this->message = "OK";
-
             $rule = [
                 'username'  =>'require',
                 'password'  =>'require'
             ];
             $msg = [
-                //'username.require'  =>'用户名[username]不能为空'
+                'username.require'  =>'用户名[username]不能为空',
+                'password.require'  =>'密码[password]不能为空'
             ];
             $validate = new ParamsValidator($rule, $msg);
             $valid_result = $validate->check($params);
@@ -100,12 +86,21 @@ class DemoController extends BaseApiController
                 $this->code    = "400";
                 $this->message = "Bad Request";
             } else {
+                $username = $params['username'];
+                $password = $params['password'];
+                $auth =  new Authorization();
+                $token = $auth->createLoginToken($username, time());
+                $data['token']=$token;
 
                 $this->code = 200;
                 $this->message = 'OK';
                 $this->debug_stack = [];
-                $data = $params;
+                //$data = $params;
             }
+        } else {
+            $this->code = 405;
+            $this->message = "Method Not Allowed";
+            $data = "Method GET/POST is required";
         }
         return $data;
     }
