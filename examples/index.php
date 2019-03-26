@@ -44,11 +44,18 @@ $config = [
             ],
         ],
         'errorHandler' => [
-            'errorAction' => 'site/error',
+            'errorAction' => 'site/index',
         ],
         'user' => [
             'identityClass' => '',
             'enableAutoLogin' => false,
+        ],
+        'redis' => [
+            'class' => 'yii\redis\Connection',
+            'hostname' => '127.0.0.1',
+            'port' => 6379,
+            //'password' => '',
+            'database' => 15,
         ],
         'urlManager' => [
             'enablePrettyUrl' => true,
@@ -61,11 +68,11 @@ $config = [
     ],
     'params' => [
         'adminEmail' => 'qinwiei@etcp.cn',
-        'enable_sign' => false,                     //sign validation switch
-        'enable_token' => false,                    //Token validation switch
+        'enable_sign' => true,                     //sign validation switch
+        'enable_token' => true,                    //Token validation switch
         'access_control' => [                       //access_control_allow
             'allow_origin'=>['*','*.qinqiwei.com'],
-            'allow_methods'=>['get','post'],
+            'allow_methods'=>['get','post','delete'],
             'allow_headers'=>['token'],
         ]
     ],
