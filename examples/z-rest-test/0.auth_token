@@ -1,0 +1,10 @@
+POST http://0.0.0.0:890/auth/token HTTP/1.1
+Content-Type: application/json
+
+{
+    "username":"test",
+    "password":"test"
+}
+
+
+GET http://0.0.0.0:890/auth/token?token=f51c7185b3569f0536f165aa13459afc HTTP/1.1

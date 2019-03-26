@@ -1,0 +1,11 @@
+POST http://0.0.0.0:890/demo/demo HTTP/1.1
+sign-base: qinqi
+sign: qin
+token: f51c7185b3569f0536f165aa13459afc
+Content-Type: application/json
+
+{
+    "sign":"x",
+    "username":"test",
+    "password":"test"
+}
