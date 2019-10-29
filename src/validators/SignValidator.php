@@ -35,7 +35,7 @@ class SignValidator
     public $attributes = [
         'app-key',
         'os-type',
-        'timestamp'
+        'time-stamp'
     ];
 
     /**
