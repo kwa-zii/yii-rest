@@ -1,4 +1,5 @@
 <?php
+
 /**
  * A lightweight and powerful Restful interface framework based on Yii2
  * PHP version 5.6 or newer
@@ -9,6 +10,7 @@
  * @license  Apache 2.0
  * @link     https://github.com/qinqw/yii-rest
  */
+
 namespace Qinqw\Yii\Rest\validators;
 
 use Yii;
@@ -33,7 +35,9 @@ class TokenValidator
     private $_is_valid_token = false;
     public static $globalParams = null;
     public $attributes = [
-            'token'
+        'token',
+        'app-key',
+        'timestamp'
     ];
 
     /**
@@ -52,12 +56,8 @@ class TokenValidator
 
         $auth = new Authorization();
         $token = self::$globalParams['token'];
-        $app_key = "1985071000";
-        if (array_key_exists("app-key", self::$globalParams)) {
-            $app_key = self::$globalParams['app-key'];
-        }
-        
-        if ($auth->validateToken($token, $app_key)) {
+        $app_key = self::$globalParams['app-key'];
+        if ($auth->validateToken($token)) {
             return true;
         } else {
             throw new HttpException(401, "Token is expired", 401);
@@ -80,11 +80,11 @@ class TokenValidator
 
         if ($this->_is_valid_token == true) {
             /**
-            * 优先检查存储在cookie中的参数；
-            * 如果cookie中的信息符合要求，则忽略header中的参数；如果cookie中的参数不符合要求，进一步检查header中的参数
-            */
+             * 优先检查存储在cookie中的参数；
+             * 如果cookie中的信息符合要求，则忽略header中的参数；如果cookie中的参数不符合要求，进一步检查header中的参数
+             */
             $is_missed_cookie = false;
-            $cookieParams=$_COOKIE;
+            $cookieParams = $_COOKIE;
             foreach ($this->attributes as $attribute) {
                 if (!array_key_exists($attribute, $cookieParams)) {
                     $is_missed_cookie = true;
@@ -98,7 +98,7 @@ class TokenValidator
                 $headParams = Yii::$app->request->getHeaders()->toArray();
                 foreach ($this->attributes as $attribute) {
                     if (!isset($headParams[$attribute]) || (!is_array($headParams[$attribute])) || empty($headParams[$attribute])) {
-                        throw new HttpException(400, "Missing ".$attribute." in the header", 400);
+                        throw new HttpException(400, "Missing " . $attribute . " in the header", 400);
                     } else {
                         self::$globalParams[$attribute] = array_shift($headParams[$attribute]);
                     }
