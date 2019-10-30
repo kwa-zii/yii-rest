@@ -37,7 +37,7 @@ class TokenValidator
     public $attributes = [
         'token',
         'app-key',
-        'time-stamp'
+        'timestamp'
     ];
 
     /**
